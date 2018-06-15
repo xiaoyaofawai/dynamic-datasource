@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans      http://www.springframework.org/schema/beans/spring-beans.xsd      http://www.springframework.org/schema/context      http://www.springframework.org/schema/context/spring-context.xsd">
+    <!-- 配置整合mybatis过程 -->
+    <!-- 1.配置数据库相关参数properties的属性：${url} -->
+    <context:property-placeholder location="classpath:jdbc.properties" />
+
+<!--    &lt;!&ndash; 配置数据源 &ndash;&gt;
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="${jdbc.user}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+        <property name="driverClassName" value="${jdbc.driverClass}"></property>
+        <property name="url" value="${jdbc.jdbcUrl}"></property>
+
+        &lt;!&ndash; 初始化连接大小 &ndash;&gt;
+        <property name="initialSize" value="0"></property>
+        &lt;!&ndash; 连接池最大使用连接数量 &ndash;&gt;
+        <property name="maxActive" value="20"></property>
+        &lt;!&ndash; 连接池最小空闲 &ndash;&gt;
+        <property name="minIdle" value="0" />
+        &lt;!&ndash; 获取连接最大等待时间 &ndash;&gt;
+        <property name="maxWait" value="60000" />
+
+        <property name="validationQuery">
+            <value>SELECT 1</value>
+        </property>
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+        <property name="testWhileIdle" value="true" />
+
+        &lt;!&ndash; 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 &ndash;&gt;
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+        &lt;!&ndash; 配置一个连接在池中最小生存的时间，单位是毫秒 &ndash;&gt;
+        <property name="minEvictableIdleTimeMillis" value="25200000" />
+
+        &lt;!&ndash; 打开removeAbandoned功能 &ndash;&gt;
+        <property name="removeAbandoned" value="true" />
+        &lt;!&ndash; 1800秒，也就是30分钟 &ndash;&gt;
+        <property name="removeAbandonedTimeout" value="1800" />
+        &lt;!&ndash; 关闭abanded连接时输出错误日志 &ndash;&gt;
+        <property name="logAbandoned" value="true" />
+
+        &lt;!&ndash; 监控数据库 &ndash;&gt;
+        &lt;!&ndash; <property name="filters" value="stat" /> &ndash;&gt;
+        <property name="filters" value="mergeStat" />
+    </bean>-->
+
+    <!-- 配置数据源 -->
+    <bean id="dataSource" class="test.dynamic.datasource.datasource.RouteDataSource">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+            </map>
+        </property>
+    </bean>
+
+
+    <!-- 3.配置SqlSessionFactory对象 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 注入数据库连接池 -->
+        <property name="dataSource" ref="dataSource" />
+        <!-- 配置MyBaties全局配置文件:mybatis-config.xml -->
+        <!--<property name="configLocation" value="classpath:mybatis-config.xml" />-->
+        <!-- 扫描entity包 使用别名 -->
+        <property name="typeAliasesPackage" value="com.soecode.lyf.entity" />
+        <!-- 扫描sql配置文件:mapper需要的xml文件 -->
+        <property name="mapperLocations" value="classpath:mapper/*.xml" />
+    </bean>
+
+    <!-- 4.配置扫描Dao接口包，动态实现Dao接口，注入到spring容器中 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 注入sqlSessionFactory -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+        <!-- 给出需要扫描Dao接口包 -->
+        <property name="basePackage" value="test.dynamic.datasource.dao" />
+    </bean>
+</beans>
